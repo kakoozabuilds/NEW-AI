@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samuel's AI Hub</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --accent-glow: #38bdf8;
+            --accent-glow-hover: #7dd3fc;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glow: #0284c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-dark);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            overflow: hidden;
+        }
+
+        /* Logo Area */
+        .branding-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .logo-box {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #0284c7, #0f172a);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--accent-glow);
+            box-shadow: 0 0 10px var(--border-glow);
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: white;
+            letter-spacing: -1px;
+        }
+
+        .logo-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--accent-glow);
+            border-radius: 12px;
+            animation: pulse 2s infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .title-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #fff, var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-text p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Chat Output Window */
+        .chat-output {
+            flex-grow: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: rgba(15, 23, 42, 0.3);
+        }
+
+        .msg-bubble {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+        }
+
+        .msg-user {
+            background-color: var(--border-glow);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-ai {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--accent-glow);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* Input Controls Area */
+        .input-bar {
+            padding: 20px;
+            background-color: var(--card-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-bar input {
+            flex-grow: 1;
+            background-color: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 20px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-bar input:focus {
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+        }
+
+        .input-bar button {
+            background-color: var(--accent-glow);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .input-bar button:hover {
+            background-color: var(--accent-glow-hover);
+        }
+
+        .input-bar button:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- BRANDING HEADER MATRIX -->
+        <header class="branding-header">
+            <div class="logo-box">
+                SΩ
+                <div class="logo-pulse"></div>
+            </div>
+            <div class="title-text">
+                <h1>SAMUEL's AI</h1>
+                <p>Zero-Key Multi-Agent Web Search Network Engine</p>
+            </div>
+        </header>
+
+        <!-- OUTPUT MAIN CORE -->
+        <div class="chat-output" id="chatWindow">
+            <div class="msg-bubble msg-ai">
+                Hello! I am <strong>Samuel's AI</strong>. Ask me anything—I will scan the web in real time and summarize the answers for you without using an API key.
+            </div>
+        </div>
+
+        <!-- INPUT FIELD CONTROLLER -->
+        <div class="input-bar">
+            <input type="text" id="queryInput" placeholder="Type your question here..." onkeydown="if(event.key === 'Enter') executeWebSearchAI()">
+            <button id="sendBtn" onclick="executeWebSearchAI()">Search & Ask</button>
+        </div>
+    </div>
+
+    <script>
+        async function executeWebSearchAI() {
+            const inputField = document.getElementById('queryInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const chatWindow = document.getElementById('chatWindow');
+            const rawQuery = inputField.value.trim();
+
+            if (!rawQuery) return;
+
+            // Lock UI elements to avoid race condition mistakes
+            inputField.value = '';
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+
+            // Append User Question
+            const userMsg = document.createElement('div');
+            userMsg.className = 'msg-bubble msg-user';
+            userMsg.textContent = rawQuery;
+            chatWindow.appendChild(userMsg);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            // Create temporary AI streaming bubble container
+            const aiMsg = document.createElement('div');
+            aiMsg.className = 'msg-bubble msg-ai';
+            aiMsg.innerHTML = `<div class="search-badge">🌐 Querying live search infrastructure...</div><div class="ai-text">Analyzing references...</div>`;
+            chatWindow.appendChild(aiMsg);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            try {
+                // Fetch dynamic web data safely through DuckDuckGo proxy channels without API authentication blocks
+                const searchProxyUrl = `https://duckduckgo.com{encodeURIComponent(rawQuery)}`;
+                const proxyServerResponse = await fetch(`https://allorigins.win{encodeURIComponent(searchProxyUrl)}`);
+                
+                if (!proxyServerResponse.ok) throw new Error("Search uplink timeout.");
+                
+                const responseData = await proxyServerResponse.json();
+                const parseDocument = new DOMParser().parseFromString(responseData.contents, 'text/html');
+                const rawResultRows = parseDocument.querySelectorAll('.web-result');
+
+                let aggregatedTextContext = "";
+                let citationLinks = [];
+
+                rawResultRows.forEach((row, index) => {
+                    if (index < 4) { // Filter and collect top 4 primary matching text frames
+                        const bodySnippet = row.querySelector('.result__snippet')?.textContent || "";
+                        const anchorElement = row.querySelector('.result__url');
+                        const sourceUrl = anchorElement ? anchorElement.getAttribute('href') : "";
+                        const sourceTitle = anchorElement ? anchorElement.textContent.trim() : "Web Source";
+                        
+                        if (bodySnippet) {
+                            aggregatedTextContext += `${bodySnippet} `;
+                            if (sourceUrl) citationLinks.push({ title: sourceTitle, url: sourceUrl });
+                        }
+                    }
+                });
+
+                // Fallback sequence if scraping threshold drops
+                if (!aggregatedTextContext.trim()) {
