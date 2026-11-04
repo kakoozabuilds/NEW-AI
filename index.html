@@ -228,7 +228,7 @@
         </div>
     </div>
 
-    <script>
+     <script>
         async function executeWebSearchAI() {
             const inputField = document.getElementById('queryInput');
             const sendBtn = document.getElementById('sendBtn');
@@ -252,63 +252,44 @@
             // Create temporary AI status bubble
             const aiMsg = document.createElement('div');
             aiMsg.className = 'msg-bubble msg-ai';
-            aiMsg.innerHTML = `<div class="search-badge">🌐 Querying live search infrastructure...</div><div class="ai-text">Analyzing references...</div>`;
+            aiMsg.innerHTML = `<div class="search-badge">🌐 Querying open database infrastructure...</div><div class="ai-text">Analyzing references...</div>`;
             chatWindow.appendChild(aiMsg);
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
             try {
-                // Correctly structured target search url for scraping
-                const searchTargetUrl = `https://duckduckgo.com{encodeURIComponent(rawQuery)}`;
+                // Build a native CORS-allowed API string targeting the open search gateway
+                const targetUrl = `https://wikipedia.org{encodeURIComponent(rawQuery)}`;
                 
-                // Using stable CorsProxy framework syntax to successfully read search results without blocking
-                const proxyServerResponse = await fetch(`https://corsproxy.io{encodeURIComponent(searchTargetUrl)}`);
+                const response = await fetch(targetUrl);
+                if (!response.ok) throw new Error("Database network path timeout.");
                 
-                if (!proxyServerResponse.ok) throw new Error("Search network path timeout.");
-                
-                const htmlTextContent = await proxyServerResponse.text();
-                const parseDocument = new DOMParser().parseFromString(htmlTextContent, 'text/html');
-                
-                // Look for the main DuckDuckGo result elements
-                const rawResultRows = parseDocument.querySelectorAll('.result');
+                const data = await response.json();
+                const searchResults = data.query?.search || [];
 
                 let aggregatedTextContext = "";
                 let citationLinks = [];
 
-                rawResultRows.forEach((row, index) => {
-                    if (index < 4) { // Gather top 4 results
-                        const bodySnippet = row.querySelector('.result__snippet')?.textContent || "";
-                        const anchorElement = row.querySelector('.result__a');
-                        const sourceUrl = anchorElement ? anchorElement.getAttribute('href') : "";
-                        const sourceTitle = anchorElement ? anchorElement.textContent.trim() : "Web Source";
-                        
-                        if (bodySnippet) {
-                            aggregatedTextContext += `${bodySnippet} `;
-                            if (sourceUrl) citationLinks.push({ title: sourceTitle, url: sourceUrl });
-                        }
+                searchResults.forEach((result) => {
+                    // Extract and strip html tags safely from text snippets
+                    const cleanSnippet = result.snippet ? result.snippet.replace(/<\/?[^>]+(>|$)/g, "") : "";
+                    const sourceUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(result.title)}`;
+                    
+                    if (cleanSnippet) {
+                        aggregatedTextContext += `${cleanSnippet} `;
+                        citationLinks.push({ title: result.title, url: sourceUrl });
                     }
                 });
 
-                // Fallback extraction system if duckduckgo HTML elements change
+                // Fallback direct parser if zero search context maps return
                 if (!aggregatedTextContext.trim()) {
-                    const alternateSnippets = parseDocument.querySelectorAll('.web-result');
-                    alternateSnippets.forEach((row, idx) => {
-                        if (idx < 4) {
-                            const snippet = row.querySelector('.result__snippet')?.textContent || "";
-                            if (snippet) aggregatedTextContext += `${snippet} `;
-                        }
-                    });
-                }
-
-                // If text is still entirely blank, fallback gracefully with status message
-                if (!aggregatedTextContext.trim()) {
-                    aggregatedTextContext = `No snippet context extracted directly. Generating manual synthesis reference framework for "${rawQuery}".`;
+                    throw new Error("No readable search text matched this query topic.");
                 }
 
                 // Clean duplicate white spacing safely
                 let cleanContextText = aggregatedTextContext.replace(/\s+/g, ' ').trim();
                 
                 // Generate instant local client-side summarized response template
-                let refinedSummaryOutput = `I searched the web for your query. Here is a live real-time synthesis of the top matching results:\n\n${cleanContextText.substring(0, 550)}...`;
+                let refinedSummaryOutput = `I searched open web registers for your query. Here is a live real-time synthesis of the top matching results:\n\n${cleanContextText}`;
 
                 // Render structured final presentation inside UI
                 let finalFormattedHtml = `
@@ -316,11 +297,11 @@
                     <div class="ai-text">${refinedSummaryOutput.replace(/\n/g, '<br>')}</div>
                 `;
 
-                // If source links were securely fetched, print clear citations at the base
+                // Print clear citations at the base
                 if (citationLinks.length > 0) {
                     finalFormattedHtml += `<div style="margin-top:12px; font-size:0.8rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px; color:var(--text-muted);"><strong>Sources verified:</strong><ul style="margin-left:15px; margin-top:4px;">`;
                     citationLinks.forEach(link => {
-                        finalFormattedHtml += `<li><a href="${link.url}" target="_blank" style="color:var(--accent-glow); text-decoration:none;">${link.title.substring(0, 45)}...</a></li>`;
+                        finalFormattedHtml += `<li><a href="${link.url}" target="_blank" style="color:var(--accent-glow); text-decoration:none;">${link.title}</a></li>`;
                     });
                     finalFormattedHtml += `</ul></div>`;
                 }
@@ -329,7 +310,7 @@
 
             } catch (runtimeError) {
                 console.error(runtimeError);
-                aiMsg.innerHTML = `<span style="color:#ef4444;">⚠️ The web query failed to fetch or return data. Please check your network connection or try a different phrase.</span>`;
+                aiMsg.innerHTML = `<span style="color:#ef4444;">⚠️ The web query failed to fetch data. No matching records found. Please try a different query topic phrase.</span>`;
             }
 
             // Restore input text box and button control access
